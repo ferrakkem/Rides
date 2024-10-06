@@ -12,6 +12,7 @@ struct Vehicle: Identifiable, Codable, Equatable {
     let vin: String
     let car_type: String
     let color: String
+    let kilometrage: Int
     var make: String {
         // Assume make is the first part before a space
         return make_and_model.split(separator: " ").first.map(String.init) ?? "Unknown"

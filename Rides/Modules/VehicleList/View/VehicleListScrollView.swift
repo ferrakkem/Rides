@@ -33,12 +33,14 @@ struct VehicleListScrollView: View {
                 make_and_model: "Toyota Camry",
                 vin: "123ABC456XYZ789",
                 car_type: "Sedan",
-                color: "Red"
+                color: "Red",
+                kilometrage: 5234
             ),
             Vehicle(make_and_model: "Honda Civic",
                     vin: "987XYZ654ABC321",
                     car_type: "Coupe",
-                    color: "Blue"
+                    color: "Blue",
+                    kilometrage: 2343
                    )
         ],
         onAppear: { _ in

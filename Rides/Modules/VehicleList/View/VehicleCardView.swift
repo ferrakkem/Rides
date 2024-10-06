@@ -25,7 +25,8 @@ struct VehicleCardView: View {
             make_and_model: "Audi V8",
             vin: "234SDFSD56R",
             car_type: "Sedan",
-            color:"Olive"
+            color:"Olive",
+            kilometrage: 23423
         )
     )
 }

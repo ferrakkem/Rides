@@ -48,7 +48,8 @@ struct VehicleDetailView: View {
             make_and_model: "Honda Civic",
             vin: "23FFH64GDJDHYE",
             car_type: "Sedan",
-            color: "Dark Gray"
+            color: "Dark Gray",
+            kilometrage: 1231
         )
     )
 }
