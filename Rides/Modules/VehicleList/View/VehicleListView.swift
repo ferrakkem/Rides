@@ -14,13 +14,14 @@ struct VehicleListView: View {
     var body: some View {
         NavigationView {
             VStack {
+                // Use the SortingPickerView component
                 SortingPickerView(sortByVin: $viewModel.sortByVin, onSortChange: {
                     viewModel.sortVehicles()
                 })
-                
-                // Validation Error Message
+
+                // Use the ErrorMessageView component
                 ErrorMessageView(errorMessage: viewModel.errorMessage)
-                
+
                 // If no data, show NoDataView
                 if viewModel.isVehicleListEmpty() {
                     NoDataView()
@@ -34,9 +35,10 @@ struct VehicleListView: View {
             .padding()
             .navigationTitle(VehicleListViewStrings.navigationTitle)
             .toolbar {
+                // Add button to navigation bar with download icon
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        viewModel.fetchVehicles()
+                        viewModel.validateAndFetchVehicles(searchText: searchText)
                     }) {
                         Image(systemName: "arrow.down.circle.fill") // Download icon
                     }
@@ -44,7 +46,7 @@ struct VehicleListView: View {
             }
             .searchable(text: $searchText, prompt: VehicleListViewStrings.fetchDataPrompt)
             .onSubmit(of: .search) {
-                viewModel.fetchVehicles()
+                viewModel.validateAndFetchVehicles(searchText: searchText)
             }
             .alert(isPresented: $viewModel.showNetworkAlert) {
                 Alert(

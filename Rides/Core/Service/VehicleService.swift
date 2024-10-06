@@ -12,9 +12,9 @@ class VehicleService {
     static let shared = VehicleService()
     // Use the vehicle endpoint from APIConstants
     private let vehicleAPIURL = APIConstants.Endpoints.vehicle
-    // Function to fetch a single vehicle
-    func fetchVehicles() -> AnyPublisher<Vehicle, NetworkError> {
-        guard let url = URL(string: vehicleAPIURL) else {
+    // Function to fetch multiple vehicles
+    func fetchVehicles(count: Int) -> AnyPublisher<[Vehicle], NetworkError> {
+        guard let url = URL(string: "\(vehicleAPIURL)?size=\(count)") else {
             return Fail(error: NetworkError.invalidURL)
                 .eraseToAnyPublisher()
         }
@@ -22,7 +22,7 @@ class VehicleService {
             .tryMap { (data, response) -> Data in
                 return data
             }
-            .decode(type: Vehicle.self, decoder: JSONDecoder())
+            .decode(type: [Vehicle].self, decoder: JSONDecoder())
             .mapError { error in
                 if error is DecodingError {
                     return .decodingError

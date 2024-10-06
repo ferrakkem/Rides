@@ -12,7 +12,6 @@ import SwiftUI
 class VehicleListViewModel: ObservableObject {
     @Published var vehicles: [Vehicle] = []
     @Published var errorMessage: String?
-    // Default sorting by VIN
     @Published var sortByVin: Bool = true
     @Published var showNetworkAlert: Bool = false
     
@@ -28,11 +27,24 @@ class VehicleListViewModel: ObservableObject {
         self.networkMonitor = networkMonitor
         observeNetwork()
     }
+    
+    // Validate input and fetch vehicles
+    func validateAndFetchVehicles(searchText: String) {
+        if let count = Int(searchText), (1...100).contains(count) {
+            errorMessage = nil
+            resetList()
+            fetchVehicles(count: count)
+        } else {
+            errorMessage = VehicleListViewStrings.invalidInputMessage
+        }
+    }
+    
     func resetList() {
         vehicles.removeAll()
         currentPage = 1
         totalFetchedCount = 0
     }
+    
     private func observeNetwork() {
         networkMonitor.$isConnected
             .receive(on: DispatchQueue.main)
@@ -43,15 +55,15 @@ class VehicleListViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    func fetchVehicles() {
+    
+    func fetchVehicles(count: Int = 10) {
         guard !isLoading else { return }
-        // Check for network connection
         guard networkMonitor.isConnected else {
             showNetworkAlert = true
             return
         }
         isLoading = true
-        apiService.fetchVehicles()
+        apiService.fetchVehicles(count: count)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -61,31 +73,30 @@ class VehicleListViewModel: ObservableObject {
                     self.errorMessage = nil
                 }
                 self.isLoading = false
-            }, receiveValue: { newVehicle in
-                self.vehicles.append(newVehicle)
-                self.totalFetchedCount += 1
+            }, receiveValue: { newVehicles in
+                self.vehicles.append(contentsOf: newVehicles)
+                self.totalFetchedCount += newVehicles.count
                 self.currentPage += 1
-                // Apply sorting after fetching
                 self.sortVehicles()
             })
             .store(in: &cancellables)
     }
-    // Check if vehicle list is empty
+    
     func isVehicleListEmpty() -> Bool {
         return vehicles.isEmpty && errorMessage == nil
     }
-    // Open app settings when there is no internet connection
+    
     func goToSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
         }
     }
-    // Fetch more vehicles if needed (for lazy loading)
+    
     func fetchMoreVehiclesIfNeeded(currentVehicle: Vehicle) {
         guard let lastVehicle = vehicles.last, currentVehicle == lastVehicle else { return }
-        fetchVehicles()
+        fetchVehicles(count: 10)
     }
-    // Sort vehicles based on user selection
+    
     func sortVehicles() {
         if sortByVin {
             vehicles.sort(by: { $0.vin < $1.vin })
@@ -94,3 +105,4 @@ class VehicleListViewModel: ObservableObject {
         }
     }
 }
+
